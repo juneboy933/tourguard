@@ -1,0 +1,21 @@
+{
+  "name": "tourguard",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=@tourguard/api",
+    "dev:web": "npm run dev --workspace=@tourguard/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=@tourguard/database",
+    "db:validate": "npm run db:validate --workspace=@tourguard/database"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0"
+  }
+}
