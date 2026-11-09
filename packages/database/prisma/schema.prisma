@@ -7,4 +7,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Domain models will be added in the next implementation milestone.
+enum UserRole {
+  OWNER
+  ADMIN
+  STAFF
+  GUIDE
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model Operator {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  users     User[]
+  sessions  Session[]
+}
+
+model User {
+  id           String      @id @default(uuid())
+  operatorId   String
+  name         String
+  email        String
+  phone        String?
+  passwordHash String?
+  role         UserRole    @default(STAFF)
+  status       UserStatus  @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  operator     Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  sessions     Session[]
+
+  @@unique([operatorId, email])
+  @@index([operatorId, role])
+  @@index([operatorId, status])
+}
+
+model Session {
+  id             String    @id @default(uuid())
+  userId         String
+  operatorId     String
+  tokenHash      String    @unique
+  csrfTokenHash  String
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  lastSeenAt     DateTime?
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operator       Operator  @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([operatorId, expiresAt])
+}

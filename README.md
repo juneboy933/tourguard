@@ -6,7 +6,8 @@ TourGuard is an SMS-based tourist separation reporting and coordination platform
 
 - M0 infrastructure setup: partially complete.
 - M1 application foundation: complete and verified.
-- Next milestone: M2 identity and authorization.
+- M2 identity and authorization: complete and verified.
+- Next milestone: M3 tours and guests.
 - Africa's Talking provider discovery remains open for sender configuration, webhook authentication/payloads, retry behavior, and delivery semantics.
 
 ## Technology baseline
