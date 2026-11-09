@@ -19,6 +19,18 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum TourStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  REMOVED
+}
+
 model Operator {
   id        String    @id @default(uuid())
   name      String
@@ -26,6 +38,8 @@ model Operator {
   updatedAt DateTime  @updatedAt
   users     User[]
   sessions  Session[]
+  tours     Tour[]
+  guests    Guest[]
 }
 
 model User {
@@ -41,10 +55,63 @@ model User {
   updatedAt    DateTime    @updatedAt
   operator     Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
   sessions     Session[]
+  guidedTours  Tour[]     @relation("TourGuide")
 
   @@unique([operatorId, email])
   @@index([operatorId, role])
   @@index([operatorId, status])
+}
+
+model Tour {
+  id          String     @id @default(uuid())
+  operatorId  String
+  guideUserId String?
+  reference   String
+  name        String
+  destination String?
+  description String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  status      TourStatus @default(DRAFT)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  operator    Operator   @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  guide       User?      @relation("TourGuide", fields: [guideUserId], references: [id], onDelete: Restrict)
+  guests      TourGuest[]
+
+  @@unique([operatorId, reference])
+  @@index([operatorId, status, startsAt])
+  @@index([guideUserId, status])
+}
+
+model Guest {
+  id          String      @id @default(uuid())
+  operatorId  String
+  name        String
+  phone       String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  operator    Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  tours       TourGuest[]
+
+  @@unique([operatorId, phone])
+  @@index([operatorId, name])
+}
+
+model TourGuest {
+  id         String           @id @default(uuid())
+  tourId     String
+  guestId    String
+  reference  String
+  status     MembershipStatus @default(ACTIVE)
+  registeredAt DateTime        @default(now())
+  removedAt  DateTime?
+  tour       Tour             @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  guest      Guest            @relation(fields: [guestId], references: [id], onDelete: Restrict)
+
+  @@unique([tourId, guestId])
+  @@unique([tourId, reference])
+  @@index([guestId, status])
 }
 
 model Session {

@@ -1,6 +1,6 @@
 # TourGuard implementation plan
 
-**Status:** M2 complete; ready for M3  
+**Status:** M3 complete; ready for M4  
 **Inputs:** Approved `PRD.md` v0.1.0 and `TRD.md` v0.1.0  
 **Scope:** Hackathon MVP; no application code is included in this document.
 
@@ -11,8 +11,8 @@
 | M0 — Repository and provider discovery | Partially complete | GitHub repository is active; local PostgreSQL Compose service is healthy on host port `5435`; Render is selected; Africa's Talking sender, webhook authentication, payload, retry, and delivery semantics still require confirmation. |
 | M1 — Application foundation | Complete | NestJS API, Next.js dashboard shell, Prisma package, npm workspace, lockfile, health endpoint, type-checks, Prisma validation/generation, and production builds pass. |
 | M2 — Identity and authorization | Complete | Operator/user/session models and migration, bcrypt password verification, HTTP-only sessions, CSRF protection, roles guard, throttling, authentication endpoints, and passing Jest tests are implemented. |
-| M3 — Tours and guests | Next | Domain models, migrations, tour/guest APIs, references, lifecycle rules, and dashboard screens remain. |
-| M4 — SMS adapter and inbound inbox | Blocked on provider confirmation | Adapter, webhook verification, canonical mapping, inbox persistence, parser, and idempotency remain. |
+| M3 — Tours and guests | Complete | Tour, guest, and membership models/migration, references, phone normalization, guide assignment, tenant-scoped APIs, lifecycle guards, and passing tests are implemented. |
+| M4 — SMS adapter and inbound inbox | Next / provider-gated | Adapter, webhook verification, canonical mapping, inbox persistence, parser, and idempotency remain; provider-specific details must be confirmed first. |
 | M5 — Incidents and operator workflow | Not started | Incident state machine, notifications, audit events, and operator workflow remain. |
 | M6 — Hardening and release | Not started | Security review, retention jobs, end-to-end tests, Render deployment, TLS, monitoring, and runbooks remain. |
 
@@ -69,6 +69,8 @@ The M1 commit is ready to push. Do not commit `.env` or any real provider/databa
 **Exit criteria:** authenticated operator can access only their operator's resources; guides remain SMS-only in the MVP; authorization tests cover cross-tenant and role violations.
 
 ### M3 — Tours and guests
+
+**Current state:** Complete and verified. Activation requires at least one guest and an assigned guide.
 
 1. Implement tour, guest, and tour-guest persistence with references and constraints.
 2. Implement tour creation, editing, guide assignment, activation, completion, and cancellation transitions.

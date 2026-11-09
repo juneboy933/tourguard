@@ -1,0 +1,2 @@
+export const TOUR_REFERENCE_PREFIX = 'TG';
+export const GUEST_REFERENCE_PREFIX = 'GUEST';
