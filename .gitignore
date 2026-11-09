@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+
+# Build and test output
+dist/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and local runtime data
+*.log
+docker-data/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Prisma/local tooling
+*.db
+*.sqlite
