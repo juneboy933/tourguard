@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tourguard}
+      POSTGRES_USER: ${POSTGRES_USER:-tourguard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tourguard-dev-password}
+    ports:
+      - "${POSTGRES_PORT:-5435}:5432"
+    volumes:
+      - tourguard-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tourguard} -d ${POSTGRES_DB:-tourguard}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  tourguard-postgres-data:
