@@ -1,6 +1,6 @@
 # TourGuard implementation plan
 
-**Status:** M3 complete; ready for M4  
+**Status:** M4 sandbox foundation complete; ready for M5  
 **Inputs:** Approved `PRD.md` v0.1.0 and `TRD.md` v0.1.0  
 **Scope:** Hackathon MVP; no application code is included in this document.
 
@@ -12,8 +12,8 @@
 | M1 — Application foundation | Complete | NestJS API, Next.js dashboard shell, Prisma package, npm workspace, lockfile, health endpoint, type-checks, Prisma validation/generation, and production builds pass. |
 | M2 — Identity and authorization | Complete | Operator/user/session models and migration, bcrypt password verification, HTTP-only sessions, CSRF protection, roles guard, throttling, authentication endpoints, and passing Jest tests are implemented. |
 | M3 — Tours and guests | Complete | Tour, guest, and membership models/migration, references, phone normalization, guide assignment, tenant-scoped APIs, lifecycle guards, and passing tests are implemented. |
-| M4 — SMS adapter and inbound inbox | Next / provider-gated | Adapter, webhook verification, canonical mapping, inbox persistence, parser, and idempotency remain; provider-specific details must be confirmed first. |
-| M5 — Incidents and operator workflow | Not started | Incident state machine, notifications, audit events, and operator workflow remain. |
+| M4 — SMS adapter and inbound inbox | Complete for sandbox | Sandbox adapter, public webhook, canonical mapping, inbox persistence, strict parser, provider-ID idempotency, and tests are implemented and manually exercised through ngrok. Production webhook verification and delivery callback semantics remain open. |
+| M5 — Incidents and operator workflow | Next | Incident state machine, sender/guest/tour authorization, notifications, audit events, and operator workflow remain. |
 | M6 — Hardening and release | Not started | Security review, retention jobs, end-to-end tests, Render deployment, TLS, monitoring, and runbooks remain. |
 
 ### Completed commits
@@ -81,6 +81,8 @@ The M1 commit is ready to push. Do not commit `.env` or any real provider/databa
 **Exit criteria:** an operator can create a tour, register multiple guests, assign a guide, activate the tour, and inspect masked guest data; transition and uniqueness tests pass.
 
 ### M4 — SMS adapter and inbound inbox
+
+**Current state:** Sandbox foundation complete and verified through the Africa's Talking simulator and ngrok. Production-specific webhook authentication and delivery reporting remain deferred until confirmed from the selected provider configuration.
 
 1. Implement the `SmsProvider` interface and a test fake.
 2. Implement the configured Africa's Talking outbound mapping and error classification.

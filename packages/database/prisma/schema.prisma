@@ -31,6 +31,21 @@ enum MembershipStatus {
   REMOVED
 }
 
+enum InboundMessageStatus {
+  RECEIVED
+  DUPLICATE
+  REJECTED
+  PARSED
+}
+
+enum OutboundMessageStatus {
+  QUEUED
+  SUBMITTED
+  DELIVERED
+  FAILED
+  UNKNOWN
+}
+
 model Operator {
   id        String    @id @default(uuid())
   name      String
@@ -40,6 +55,8 @@ model Operator {
   sessions  Session[]
   tours     Tour[]
   guests    Guest[]
+  inboundMessages  InboundMessage[]
+  outboundMessages OutboundMessage[]
 }
 
 model User {
@@ -129,4 +146,49 @@ model Session {
 
   @@index([userId, expiresAt])
   @@index([operatorId, expiresAt])
+}
+
+model InboundMessage {
+  id                String               @id @default(uuid())
+  operatorId        String?
+  provider          String
+  providerMessageId String?
+  fingerprint       String               @unique
+  sender            String
+  recipient         String?
+  text              String
+  command           String?
+  tourReference     String?
+  guestReference    String?
+  status            InboundMessageStatus @default(RECEIVED)
+  rejectionReason   String?
+  rawPayload        Json?
+  receivedAt        DateTime
+  processedAt       DateTime?
+  createdAt         DateTime             @default(now())
+  operator          Operator?            @relation(fields: [operatorId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerMessageId])
+  @@index([sender, receivedAt])
+  @@index([operatorId, status, receivedAt])
+}
+
+model OutboundMessage {
+  id                String                @id @default(uuid())
+  operatorId        String?
+  provider          String
+  providerMessageId String?
+  recipient         String
+  messageType       String
+  bodyHash          String
+  status            OutboundMessageStatus  @default(QUEUED)
+  providerMetadata  Json?
+  attemptCount      Int                   @default(0)
+  lastError         String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  operator          Operator?             @relation(fields: [operatorId], references: [id], onDelete: SetNull)
+
+  @@index([operatorId, status, createdAt])
+  @@index([providerMessageId])
 }

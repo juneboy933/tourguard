@@ -4,9 +4,16 @@ import { HealthController } from './health.controller';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { ToursModule } from './tours/tours.module';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, AuthModule, ToursModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../../.env', '.env'] }),
+    DatabaseModule,
+    AuthModule,
+    ToursModule,
+    SmsModule,
+  ],
   controllers: [HealthController],
 })
 export class AppModule {}
