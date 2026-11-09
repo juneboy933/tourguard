@@ -1,8 +1,28 @@
 # TourGuard implementation plan
 
-**Status:** Ready for engineering kickoff  
+**Status:** M1 complete; ready for M2  
 **Inputs:** Approved `PRD.md` v0.1.0 and `TRD.md` v0.1.0  
 **Scope:** Hackathon MVP; no application code is included in this document.
+
+## Current delivery status
+
+| Milestone | Status | Evidence / remaining work |
+|---|---|---|
+| M0 — Repository and provider discovery | Partially complete | GitHub repository is active; local PostgreSQL Compose service is healthy on host port `5435`; Render is selected; Africa's Talking sender, webhook authentication, payload, retry, and delivery semantics still require confirmation. |
+| M1 — Application foundation | Complete | NestJS API, Next.js dashboard shell, Prisma package, npm workspace, lockfile, health endpoint, type-checks, Prisma validation/generation, and production builds pass. |
+| M2 — Identity and authorization | Not started | Sessions, password hashing, roles, tenant guards, CSRF protection, and rate limiting remain. |
+| M3 — Tours and guests | Not started | Domain models, migrations, tour/guest APIs, references, lifecycle rules, and dashboard screens remain. |
+| M4 — SMS adapter and inbound inbox | Blocked on provider confirmation | Adapter, webhook verification, canonical mapping, inbox persistence, parser, and idempotency remain. |
+| M5 — Incidents and operator workflow | Not started | Incident state machine, notifications, audit events, and operator workflow remain. |
+| M6 — Hardening and release | Not started | Security review, retention jobs, end-to-end tests, Render deployment, TLS, monitoring, and runbooks remain. |
+
+### Completed commits
+
+- `f774411` — documentation baseline
+- `10a609c` — local PostgreSQL development setup
+- `4d16920` — application foundation scaffold
+
+The M1 commit is ready to push. Do not commit `.env` or any real provider/database credentials.
 
 ## 1. Delivery principles
 
@@ -17,6 +37,8 @@
 
 ### M0 — Repository and provider discovery
 
+**Current state:** Infrastructure setup is complete; provider discovery is still open.
+
 1. Confirm repository package/tooling choice and workspace layout.
 2. Confirm Africa's Talking account, sender configuration, inbound payload fields, authentication mechanism, delivery callbacks, retry behavior, and outbound response shape.
 3. Decide production host, domain/TLS termination, operator password recovery, and final SMS copy.
@@ -25,6 +47,8 @@
 **Exit criteria:** U-01 through U-04 are documented from provider sources/configuration; U-05 has an owner and target date; no provider signature or delivery guarantee is invented.
 
 ### M1 — Application foundation
+
+**Current state:** Complete and verified.
 
 1. Initialize NestJS API and Next.js dashboard with TypeScript.
 2. Add configuration validation, structured logging, correlation IDs, health endpoints, and Prisma connection management.
