@@ -21,6 +21,10 @@ export class ToursService {
     });
   }
 
+  listGuides(scope: Scope) {
+    return this.prisma.user.findMany({ where: { operatorId: scope.operatorId, role: UserRole.GUIDE, status: 'ACTIVE' }, select: { id: true, name: true, phone: true }, orderBy: { name: 'asc' } });
+  }
+
   async get(scope: Scope, id: string) {
     const tour = await this.prisma.tour.findFirst({
       where: { id, operatorId: scope.operatorId },

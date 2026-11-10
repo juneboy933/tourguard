@@ -22,6 +22,11 @@ export class ToursController {
     return this.toursService.list(request.user!, status);
   }
 
+  @Get('guides')
+  guides(@Req() request: AuthenticatedRequest) {
+    return this.toursService.listGuides(request.user!);
+  }
+
   @Post()
   create(@Req() request: AuthenticatedRequest, @Body() body: CreateTourDto) {
     return this.toursService.create(request.user!, body);
