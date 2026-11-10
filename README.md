@@ -43,6 +43,8 @@ TourGuard is an SMS-based tourist separation reporting and coordination platform
 
 PostgreSQL is exposed on host port `5435` and listens on `5432` inside the container. Production will use a separate managed PostgreSQL instance and Render environment variables.
 
+API health checks are available at `/api/v1/health/live` (process liveness) and `/api/v1/health/ready` (database readiness).
+
 `db:seed` creates local-only demo data: `admin@tourguard.local`, tour `TG482`, guest `GUEST829`, and an assigned guide. Set `SEED_ADMIN_PASSWORD` in `.env` before running it; never use this seed or its default password in production.
 
 ## Documentation

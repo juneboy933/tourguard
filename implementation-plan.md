@@ -1,6 +1,6 @@
 # TourGuard implementation plan
 
-**Status:** M5 complete; ready for M6 hardening
+**Status:** M6 hardening in progress
 **Inputs:** Approved `PRD.md` v0.1.0 and `TRD.md` v0.1.0  
 **Scope:** Hackathon MVP; no application code is included in this document.
 
@@ -14,7 +14,7 @@
 | M3 — Tours and guests | Complete | Tour, guest, and membership models/migration, references, phone normalization, guide assignment, tenant-scoped APIs, lifecycle guards, and passing tests are implemented. |
 | M4 — SMS adapter and inbound inbox | Complete for sandbox | Sandbox adapter, public webhook, canonical mapping, inbox persistence, strict parser, provider-ID idempotency, and tests are implemented and manually exercised through ngrok. Production webhook verification and delivery callback semantics remain open. |
 | M5 — Incidents and operator workflow | Complete | Incident state machine, sender/guest/tour authorization, queued notification intents, audit events, operator endpoints, dashboard incident workflow, rejection handling, and duplicate callback protection are implemented and verified through the sandbox. |
-| M6 — Hardening and release | Not started | Security review, retention jobs, end-to-end tests, Render deployment, TLS, monitoring, and runbooks remain. |
+| M6 — Hardening and release | In progress | CI verification, database readiness checks, and non-root container definitions are implemented. Retention, structured observability, isolated PostgreSQL integration tests, deployment/runbooks, and provider release decisions remain. |
 
 ### Completed commits
 
@@ -112,6 +112,8 @@ The M1 commit is ready to push. Do not commit `.env` or any real provider/databa
 3. Run dependency/security checks, migration-drift checks, Docker vulnerability checks, and CI verification.
 4. Perform a provider sandbox/manual SMS test and document observed callback/delivery behavior.
 5. Deploy to the selected environment with TLS, secret injection, health checks, and rollback procedure.
+
+**Current implementation note:** The repository now has GitHub Actions verification, a database-aware readiness endpoint, process liveness endpoint, and separate non-root API/web container definitions. Docker image execution and the CI workflow still need to be exercised in GitHub/Render, and privacy retention, structured observability, integration testing, and operational runbooks remain.
 
 **Exit criteria:** PRD acceptance criteria are demonstrated, deployment is repeatable, monitoring is usable, and unresolved provider behavior is documented rather than overstated.
 
