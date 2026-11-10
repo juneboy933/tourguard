@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { TourStatus } from '@prisma/client';
 import { AuthenticatedRequest, SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -66,5 +66,10 @@ export class ToursController {
   cancel(@Req() request: AuthenticatedRequest, @Param('id') id: string, @Body() body: CancelTourDto) {
     void body;
     return this.toursService.cancel(request.user!, id);
+  }
+
+  @Delete(':id')
+  remove(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.toursService.remove(request.user!, id);
   }
 }

@@ -105,6 +105,19 @@ export class ToursService {
     return this.prisma.tour.update({ where: { id: tour.id }, data: { status: TourStatus.CANCELLED } });
   }
 
+  async remove(scope: Scope, id: string) {
+    const tour = await this.prisma.tour.findFirst({
+      where: { id, operatorId: scope.operatorId },
+      include: { _count: { select: { incidents: true } } },
+    });
+    if (!tour) throw new NotFoundException('Tour not found');
+    if (tour.status === TourStatus.ACTIVE) throw new BadRequestException('Active tours must be completed or cancelled before deletion');
+    if (tour._count.incidents > 0) throw new ConflictException('Tours with incident history cannot be deleted');
+
+    await this.prisma.tour.delete({ where: { id: tour.id } });
+    return { deleted: true, id: tour.id, reference: tour.reference };
+  }
+
   private async requireDraft(scope: Scope, id: string) {
     const tour = await this.prisma.tour.findFirst({ where: { id, operatorId: scope.operatorId } });
     if (!tour) throw new NotFoundException('Tour not found');
