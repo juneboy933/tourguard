@@ -45,7 +45,9 @@ export class SmsService {
         await this.prisma.inboundMessage.update({ where: { id: created.id }, data: { operatorId: incident.operatorId, incidentId: incident.id } });
         return { duplicate: false, id: created.id, command, incidentId: incident.id };
       } catch (error) {
-        await this.prisma.inboundMessage.update({ where: { id: created.id }, data: { status: InboundMessageStatus.REJECTED, rejectionReason: error instanceof Error ? error.message : 'Report could not be authorized', processedAt: new Date() } });
+        const reason = error instanceof Error ? error.message : 'Report could not be authorized';
+        await this.prisma.inboundMessage.update({ where: { id: created.id }, data: { status: InboundMessageStatus.REJECTED, rejectionReason: reason, processedAt: new Date() } });
+        await this.incidents.recordRejectedInbound(created.id, command.tourReference, reason);
         return { duplicate: false, id: created.id, rejected: true };
       }
     } catch (error) {

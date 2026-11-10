@@ -1,6 +1,6 @@
 # TourGuard implementation plan
 
-**Status:** M5 incident workflow implemented locally; database migration and end-to-end sandbox verification remain
+**Status:** M5 implementation complete; sandbox end-to-end verification remains
 **Inputs:** Approved `PRD.md` v0.1.0 and `TRD.md` v0.1.0  
 **Scope:** Hackathon MVP; no application code is included in this document.
 
@@ -13,7 +13,7 @@
 | M2 — Identity and authorization | Complete | Operator/user/session models and migration, bcrypt password verification, HTTP-only sessions, CSRF protection, roles guard, throttling, authentication endpoints, and passing Jest tests are implemented. |
 | M3 — Tours and guests | Complete | Tour, guest, and membership models/migration, references, phone normalization, guide assignment, tenant-scoped APIs, lifecycle guards, and passing tests are implemented. |
 | M4 — SMS adapter and inbound inbox | Complete for sandbox | Sandbox adapter, public webhook, canonical mapping, inbox persistence, strict parser, provider-ID idempotency, and tests are implemented and manually exercised through ngrok. Production webhook verification and delivery callback semantics remain open. |
-| M5 — Incidents and operator workflow | In progress | Incident state machine, sender/guest/tour authorization, queued notification intents, audit events, and operator endpoints are implemented; migration/application and end-to-end verification remain. |
+| M5 — Incidents and operator workflow | Complete in code | Incident state machine, sender/guest/tour authorization, queued notification intents, audit events, operator endpoints, dashboard incident workflow, and rejection audit coverage are implemented. Sandbox end-to-end verification remains. |
 | M6 — Hardening and release | Not started | Security review, retention jobs, end-to-end tests, Render deployment, TLS, monitoring, and runbooks remain. |
 
 ### Completed commits
@@ -103,7 +103,7 @@ The M1 commit is ready to push. Do not commit `.env` or any real provider/databa
 
 **Exit criteria:** all three reporting workflows work end to end in a test environment; inactive tours and unauthorized senders are rejected; duplicate reports do not create duplicate incidents.
 
-**Current implementation note:** Incident persistence, append-only events, operator-scoped list/detail/acknowledge/resolve/dismiss endpoints, optimistic version checks, inbound sender authorization, queued outbound notification intents, and report audit events are implemented. Dashboard rendering, rejection audit coverage, and live database/sandbox end-to-end verification remain before M5 is complete.
+**Current implementation note:** Incident persistence, append-only events, operator-scoped list/detail/acknowledge/resolve/dismiss endpoints, optimistic version checks, inbound sender authorization, queued outbound notification intents, report/rejection audit events, and the dashboard incident list/detail/action workflow are implemented. The remaining M5 evidence is a live sandbox run covering `LOST`, `REPORT`, `MISSING`, unauthorized sender rejection, and duplicate delivery behavior.
 
 ### M6 — Hardening and release
 

@@ -95,6 +95,12 @@ export class IncidentsService {
     });
   }
 
+  async recordRejectedInbound(inboundMessageId: string, tourReference: string, reason: string) {
+    const tours = await this.prisma.tour.findMany({ where: { reference: tourReference }, select: { operatorId: true } });
+    if (tours.length !== 1) return;
+    await this.audit(this.prisma, tours[0].operatorId, undefined, 'INBOUND_REPORT_REJECTED', inboundMessageId, 'REJECTED', { reason: reason.slice(0, 120) });
+  }
+
   private async transition(scope: Scope, id: string, next: IncidentStatus, expectedVersion?: number) {
     const incident = await this.require(scope, id);
     if (incident.status !== IncidentStatus.OPEN || (expectedVersion !== undefined && incident.version !== expectedVersion)) throw new ConflictException('Incident cannot be acknowledged in its current state');
