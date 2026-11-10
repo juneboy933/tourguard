@@ -36,6 +36,7 @@ TourGuard is an SMS-based tourist separation reporting and coordination platform
    npm install
    npm run db:validate
    npm run db:generate
+   npm run db:migrate:deploy
    npm run db:seed
    npm run typecheck
    npm run build
