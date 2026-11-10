@@ -46,33 +46,52 @@ enum OutboundMessageStatus {
   UNKNOWN
 }
 
+enum IncidentStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+enum IncidentSource {
+  SMS
+  DASHBOARD
+}
+
 model Operator {
-  id        String    @id @default(uuid())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  users     User[]
-  sessions  Session[]
-  tours     Tour[]
-  guests    Guest[]
+  id               String            @id @default(uuid())
+  name             String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  users            User[]
+  sessions         Session[]
+  tours            Tour[]
+  guests           Guest[]
   inboundMessages  InboundMessage[]
   outboundMessages OutboundMessage[]
+  incidents        Incident[]
+  auditEvents      AuditEvent[]
 }
 
 model User {
-  id           String      @id @default(uuid())
-  operatorId   String
-  name         String
-  email        String
-  phone        String?
-  passwordHash String?
-  role         UserRole    @default(STAFF)
-  status       UserStatus  @default(ACTIVE)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  operator     Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
-  sessions     Session[]
-  guidedTours  Tour[]     @relation("TourGuide")
+  id                    String          @id @default(uuid())
+  operatorId            String
+  name                  String
+  email                 String
+  phone                 String?
+  passwordHash          String?
+  role                  UserRole        @default(STAFF)
+  status                UserStatus      @default(ACTIVE)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  operator              Operator        @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  sessions              Session[]
+  guidedTours           Tour[]          @relation("TourGuide")
+  reportedIncidents     Incident[]      @relation("IncidentReporter")
+  acknowledgedIncidents Incident[]      @relation("IncidentAcknowledgedBy")
+  resolvedIncidents     Incident[]      @relation("IncidentResolvedBy")
+  incidentEvents        IncidentEvent[]
+  auditEvents           AuditEvent[]
 
   @@unique([operatorId, email])
   @@index([operatorId, role])
@@ -80,7 +99,7 @@ model User {
 }
 
 model Tour {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   operatorId  String
   guideUserId String?
   reference   String
@@ -89,12 +108,13 @@ model Tour {
   description String?
   startsAt    DateTime
   endsAt      DateTime?
-  status      TourStatus @default(DRAFT)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  operator    Operator   @relation(fields: [operatorId], references: [id], onDelete: Restrict)
-  guide       User?      @relation("TourGuide", fields: [guideUserId], references: [id], onDelete: Restrict)
+  status      TourStatus  @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  operator    Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  guide       User?       @relation("TourGuide", fields: [guideUserId], references: [id], onDelete: Restrict)
   guests      TourGuest[]
+  incidents   Incident[]
 
   @@unique([operatorId, reference])
   @@index([operatorId, status, startsAt])
@@ -102,29 +122,30 @@ model Tour {
 }
 
 model Guest {
-  id          String      @id @default(uuid())
-  operatorId  String
-  name        String
-  phone       String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  operator    Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
-  tours       TourGuest[]
+  id         String      @id @default(uuid())
+  operatorId String
+  name       String
+  phone      String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  operator   Operator    @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  tours      TourGuest[]
 
   @@unique([operatorId, phone])
   @@index([operatorId, name])
 }
 
 model TourGuest {
-  id         String           @id @default(uuid())
-  tourId     String
-  guestId    String
-  reference  String
-  status     MembershipStatus @default(ACTIVE)
-  registeredAt DateTime        @default(now())
-  removedAt  DateTime?
-  tour       Tour             @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  guest      Guest            @relation(fields: [guestId], references: [id], onDelete: Restrict)
+  id           String           @id @default(uuid())
+  tourId       String
+  guestId      String
+  reference    String
+  status       MembershipStatus @default(ACTIVE)
+  registeredAt DateTime         @default(now())
+  removedAt    DateTime?
+  incidents    Incident[]
+  tour         Tour             @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  guest        Guest            @relation(fields: [guestId], references: [id], onDelete: Restrict)
 
   @@unique([tourId, guestId])
   @@unique([tourId, reference])
@@ -132,17 +153,17 @@ model TourGuest {
 }
 
 model Session {
-  id             String    @id @default(uuid())
-  userId         String
-  operatorId     String
-  tokenHash      String    @unique
-  csrfTokenHash  String
-  expiresAt      DateTime
-  revokedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  lastSeenAt     DateTime?
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  operator       Operator  @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  userId        String
+  operatorId    String
+  tokenHash     String    @unique
+  csrfTokenHash String
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  lastSeenAt    DateTime?
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operator      Operator  @relation(fields: [operatorId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
   @@index([operatorId, expiresAt])
@@ -167,10 +188,13 @@ model InboundMessage {
   processedAt       DateTime?
   createdAt         DateTime             @default(now())
   operator          Operator?            @relation(fields: [operatorId], references: [id], onDelete: SetNull)
+  incident          Incident?            @relation(fields: [incidentId], references: [id], onDelete: SetNull)
+  incidentId        String?              @unique
 
   @@unique([provider, providerMessageId])
   @@index([sender, receivedAt])
   @@index([operatorId, status, receivedAt])
+  @@index([incidentId])
 }
 
 model OutboundMessage {
@@ -181,7 +205,7 @@ model OutboundMessage {
   recipient         String
   messageType       String
   bodyHash          String
-  status            OutboundMessageStatus  @default(QUEUED)
+  status            OutboundMessageStatus @default(QUEUED)
   providerMetadata  Json?
   attemptCount      Int                   @default(0)
   lastError         String?
@@ -191,4 +215,69 @@ model OutboundMessage {
 
   @@index([operatorId, status, createdAt])
   @@index([providerMessageId])
+}
+
+model Incident {
+  id                        String          @id @default(uuid())
+  operatorId                String
+  tourId                    String
+  reference                 String
+  reportedGuestMembershipId String?
+  reporterUserId            String?
+  source                    IncidentSource
+  status                    IncidentStatus  @default(OPEN)
+  summary                   String
+  category                  String?
+  acknowledgedById          String?
+  acknowledgedAt            DateTime?
+  resolvedById              String?
+  resolvedAt                DateTime?
+  resolutionNotes           String?
+  version                   Int             @default(1)
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  operator                  Operator        @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  tour                      Tour            @relation(fields: [tourId], references: [id], onDelete: Restrict)
+  reportedGuestMembership   TourGuest?      @relation(fields: [reportedGuestMembershipId], references: [id], onDelete: Restrict)
+  reporterUser              User?           @relation("IncidentReporter", fields: [reporterUserId], references: [id], onDelete: Restrict)
+  acknowledgedBy            User?           @relation("IncidentAcknowledgedBy", fields: [acknowledgedById], references: [id], onDelete: Restrict)
+  resolvedBy                User?           @relation("IncidentResolvedBy", fields: [resolvedById], references: [id], onDelete: Restrict)
+  events                    IncidentEvent[]
+  inboundMessage            InboundMessage?
+
+  @@unique([operatorId, reference])
+  @@index([operatorId, status, createdAt])
+  @@index([tourId, status])
+}
+
+model IncidentEvent {
+  id          String   @id @default(uuid())
+  incidentId  String
+  actorUserId String?
+  eventType   String
+  actorType   String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  incident    Incident @relation(fields: [incidentId], references: [id], onDelete: Restrict)
+  actorUser   User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([incidentId, createdAt])
+}
+
+model AuditEvent {
+  id            String   @id @default(uuid())
+  operatorId    String
+  actorUserId   String?
+  action        String
+  entityType    String
+  entityId      String?
+  outcome       String
+  correlationId String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  operator      Operator @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  actorUser     User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([operatorId, createdAt])
+  @@index([entityType, entityId, createdAt])
 }

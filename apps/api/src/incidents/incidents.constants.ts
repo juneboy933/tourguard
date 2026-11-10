@@ -1,0 +1,2 @@
+export const INCIDENT_REFERENCE_PREFIX = 'INC';
+

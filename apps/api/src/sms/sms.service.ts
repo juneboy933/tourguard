@@ -4,10 +4,11 @@ import { PrismaService } from '../database/prisma.service';
 import { AfricasTalkingProvider } from './africas-talking.provider';
 import { SmsCommandParser } from './sms.command-parser';
 import { SendSmsInput } from './sms.types';
+import { IncidentsService } from '../incidents/incidents.service';
 
 @Injectable()
 export class SmsService {
-  constructor(private readonly prisma: PrismaService, private readonly provider: AfricasTalkingProvider, private readonly parser: SmsCommandParser) {}
+  constructor(private readonly prisma: PrismaService, private readonly provider: AfricasTalkingProvider, private readonly parser: SmsCommandParser, private readonly incidents: IncidentsService) {}
 
   async receiveInbound(payload: Record<string, unknown>) {
     const message = this.provider.normalizeInbound(payload);
@@ -39,7 +40,14 @@ export class SmsService {
           processedAt: new Date(),
         },
       });
-      return { duplicate: false, id: created.id, command };
+      try {
+        const incident = await this.incidents.createFromInbound({ inboundMessageId: created.id, command: command.command, tourReference: command.tourReference, guestReference: command.guestReference, sender: message.sender });
+        await this.prisma.inboundMessage.update({ where: { id: created.id }, data: { operatorId: incident.operatorId, incidentId: incident.id } });
+        return { duplicate: false, id: created.id, command, incidentId: incident.id };
+      } catch (error) {
+        await this.prisma.inboundMessage.update({ where: { id: created.id }, data: { status: InboundMessageStatus.REJECTED, rejectionReason: error instanceof Error ? error.message : 'Report could not be authorized', processedAt: new Date() } });
+        return { duplicate: false, id: created.id, rejected: true };
+      }
     } catch (error) {
       const created = await this.prisma.inboundMessage.create({
         data: {

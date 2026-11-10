@@ -191,6 +191,7 @@ The API is versioned under `/api/v1`. JSON responses use a stable envelope for e
 | `GET` | `/api/v1/incidents/:id` | Incident plus authorized event history. |
 | `POST` | `/api/v1/incidents/:id/acknowledge` | Dashboard-only; `expectedVersion`/idempotency key; OPEN -> ACKNOWLEDGED. |
 | `POST` | `/api/v1/incidents/:id/resolve` | Outcome and notes; ACKNOWLEDGED -> RESOLVED. |
+| `POST` | `/api/v1/incidents/:id/dismiss` | Authorized operator action; `expectedVersion`; OPEN -> DISMISSED for non-actionable reports. |
 
 All mutating dashboard requests create an audit event with a correlation ID. A resource not belonging to the caller's operator is returned as not found or a generic authorization error according to the API policy, never with existence leakage.
 

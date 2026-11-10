@@ -9,7 +9,7 @@ TourGuard is an SMS-based tourist separation reporting and coordination platform
 - M2 identity and authorization: complete and verified.
 - M3 tours and guests: complete and verified.
 - M4 SMS adapter and inbound inbox: sandbox foundation complete and verified.
-- Next milestone: M5 incidents and operator workflow.
+- M5 incident workflow is implemented locally; migration, dashboard rendering, dismissal, and end-to-end verification remain.
 - Africa's Talking provider discovery remains open for sender configuration, webhook authentication/payloads, retry behavior, and delivery semantics.
 
 ## Technology baseline
@@ -48,3 +48,5 @@ PostgreSQL is exposed on host port `5435` and listens on `5432` inside the conta
 - [`TRD.md`](./TRD.md) — approved technical requirements
 - [`AGENTS.md`](./AGENTS.md) — repository and implementation constraints
 - [`implementation-plan.md`](./implementation-plan.md) — milestone plan and delivery status
+
+M5 currently includes incident state transitions, sender/tour authorization for inbound reports, append-only incident and audit history, queued SMS notification intents, and operator incident API endpoints. Africa's Talking provider authentication and delivery behavior remain explicitly provider-confirmation items; this milestone does not invent those details.
