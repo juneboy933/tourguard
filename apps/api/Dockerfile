@@ -16,6 +16,7 @@ RUN addgroup -S tourguard && adduser -S tourguard -G tourguard
 COPY --from=build --chown=tourguard:tourguard /app/node_modules ./node_modules
 COPY --from=build --chown=tourguard:tourguard /app/apps/api/dist ./apps/api/dist
 COPY --from=build --chown=tourguard:tourguard /app/packages/database/prisma ./packages/database/prisma
+COPY --from=build --chown=tourguard:tourguard /app/packages/database/prisma7.config.ts ./packages/database/prisma7.config.ts
 COPY --from=build --chown=tourguard:tourguard /app/package.json ./package.json
 USER tourguard
 EXPOSE 3001
