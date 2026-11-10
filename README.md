@@ -23,7 +23,7 @@ TourGuard is an SMS-based tourist separation reporting and coordination platform
 
 ## Local setup
 
-1. Copy `.env.example` to `.env` and fill in local values. Never commit `.env`.
+1. Copy `.env.example` to `.env` and fill in local values. Never commit `.env`. When the dashboard runs on port `3002`, set `WEB_ORIGIN=http://localhost:3002`; keep `PUBLIC_BASE_URL` set to the public API/ngrok URL used by provider callbacks.
 2. Start PostgreSQL:
 
    ```bash
