@@ -16,7 +16,7 @@ export class IncidentsService {
   list(scope: Scope, status?: IncidentStatus) {
     return this.prisma.incident.findMany({
       where: { operatorId: scope.operatorId, ...(status ? { status } : {}) },
-      include: { tour: { select: { reference: true, name: true } }, reportedGuestMembership: { include: { guest: { select: { name: true } } } } },
+      include: { tour: { select: { reference: true, name: true } }, reportedGuestMembership: { include: { guest: { select: { name: true } } } }, reporterGuestMembership: { include: { guest: { select: { name: true } } } }, reporterUser: { select: { name: true, role: true } } },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -27,6 +27,8 @@ export class IncidentsService {
       include: {
         tour: { select: { reference: true, name: true, status: true } },
         reportedGuestMembership: { include: { guest: { select: { name: true, phone: true } } } },
+        reporterGuestMembership: { include: { guest: { select: { name: true, phone: true } } } },
+        reporterUser: { select: { name: true, role: true } },
         events: { orderBy: { createdAt: 'asc' } },
       },
     });
@@ -82,12 +84,14 @@ export class IncidentsService {
     const target = input.guestReference ? tour.guests.find((membership) => membership.reference === input.guestReference) : tour.guests.find((membership) => normalizePhone(membership.guest.phone) === normalizedSender);
     if (!target) throw new BadRequestException('Report target was not found');
     const reporterUserId = input.command === 'MISSING' ? tour.guide?.id : undefined;
+    const reporterGuestMembershipId = input.command === 'MISSING' ? undefined : tour.guests.find((membership) => normalizePhone(membership.guest.phone) === normalizedSender)?.id;
     if (input.command === 'MISSING' && (!tour.guide || tour.guide.role !== UserRole.GUIDE || tour.guide.status !== 'ACTIVE')) throw new BadRequestException('Report could not be authorized');
 
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.incident.findFirst({ where: { inboundMessage: { id: input.inboundMessageId } } });
       if (existing) return existing;
-      const incident = await tx.incident.create({ data: { operatorId: tour.operatorId, tourId: tour.id, reference: await this.uniqueReference(tour.operatorId, tx), reportedGuestMembershipId: target.id, reporterUserId, source: 'SMS', summary: input.command === 'LOST' ? `${target.guest.name} reported lost` : input.command === 'MISSING' ? `${target.guest.name} reported missing` : `${target.guest.name} was reported`, inboundMessage: { connect: { id: input.inboundMessageId } } } });
+      const summary = input.command === 'LOST' ? `${target.guest.name} reported themself lost` : input.command === 'MISSING' ? `${tour.guide?.name ?? 'Guide'} reported ${target.guest.name} missing` : `${tour.guests.find((membership) => membership.id === reporterGuestMembershipId)?.guest.name ?? 'Guest'} reported ${target.guest.name} missing`;
+      const incident = await tx.incident.create({ data: { operatorId: tour.operatorId, tourId: tour.id, reference: await this.uniqueReference(tour.operatorId, tx), reportedGuestMembershipId: target.id, reporterGuestMembershipId, reporterUserId, source: 'SMS', summary, inboundMessage: { connect: { id: input.inboundMessageId } } } });
       await this.addEvent(tx, incident.id, reporterUserId, 'REPORT_RECEIVED', reporterUserId ? 'GUIDE' : 'GUEST', { command: input.command });
       await this.audit(tx, tour.operatorId, reporterUserId, 'INCIDENT_REPORTED', incident.id, 'SUCCESS', { command: input.command });
       await this.queueNotifications(tx, tour.operatorId, incident.reference, input.sender, incident.id);

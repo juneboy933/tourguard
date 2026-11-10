@@ -142,7 +142,8 @@ model TourGuest {
   status       MembershipStatus @default(ACTIVE)
   registeredAt DateTime         @default(now())
   removedAt    DateTime?
-  incidents    Incident[]
+  incidents              Incident[] @relation("IncidentTargetGuest")
+  reportedIncidents     Incident[] @relation("IncidentReporterGuest")
   tour         Tour             @relation(fields: [tourId], references: [id], onDelete: Cascade)
   guest        Guest            @relation(fields: [guestId], references: [id], onDelete: Restrict)
 
@@ -222,6 +223,7 @@ model Incident {
   tourId                    String
   reference                 String
   reportedGuestMembershipId String?
+  reporterGuestMembershipId String?
   reporterUserId            String?
   source                    IncidentSource
   status                    IncidentStatus  @default(OPEN)
@@ -237,7 +239,8 @@ model Incident {
   updatedAt                 DateTime        @updatedAt
   operator                  Operator        @relation(fields: [operatorId], references: [id], onDelete: Restrict)
   tour                      Tour            @relation(fields: [tourId], references: [id], onDelete: Restrict)
-  reportedGuestMembership   TourGuest?      @relation(fields: [reportedGuestMembershipId], references: [id], onDelete: Restrict)
+  reportedGuestMembership   TourGuest?      @relation("IncidentTargetGuest", fields: [reportedGuestMembershipId], references: [id], onDelete: Restrict)
+  reporterGuestMembership   TourGuest?      @relation("IncidentReporterGuest", fields: [reporterGuestMembershipId], references: [id], onDelete: Restrict)
   reporterUser              User?           @relation("IncidentReporter", fields: [reporterUserId], references: [id], onDelete: Restrict)
   acknowledgedBy            User?           @relation("IncidentAcknowledgedBy", fields: [acknowledgedById], references: [id], onDelete: Restrict)
   resolvedBy                User?           @relation("IncidentResolvedBy", fields: [resolvedById], references: [id], onDelete: Restrict)
