@@ -14,7 +14,7 @@
 | M3 — Tours and guests | Complete | Tour, guest, and membership models/migration, references, phone normalization, guide assignment, tenant-scoped APIs, lifecycle guards, and passing tests are implemented. |
 | M4 — SMS adapter and inbound inbox | Complete for sandbox | Sandbox adapter, public webhook, canonical mapping, inbox persistence, strict parser, provider-ID idempotency, and tests are implemented and manually exercised through ngrok. Production webhook verification and delivery callback semantics remain open. |
 | M5 — Incidents and operator workflow | Complete | Incident state machine, sender/guest/tour authorization, queued notification intents, audit events, operator endpoints, dashboard incident workflow, rejection handling, and duplicate callback protection are implemented and verified through the sandbox. |
-| M6 — Hardening and release | In progress | CI verification, database readiness checks, and non-root container definitions are implemented. Retention, structured observability, isolated PostgreSQL integration tests, deployment/runbooks, and provider release decisions remain. |
+| M6 — Hardening and release | In progress | CI verification, database readiness checks, non-root container definitions, and the initial multi-page safety-focused dashboard are implemented. Retention, structured observability, isolated PostgreSQL integration tests, deployment/runbooks, and provider release decisions remain. |
 
 ### Completed commits
 

@@ -55,3 +55,5 @@ API health checks are available at `/api/v1/health/live` (process liveness) and 
 - [`implementation-plan.md`](./implementation-plan.md) — milestone plan and delivery status
 
 M5 currently includes incident state transitions, sender/tour authorization for inbound reports, append-only incident and audit history, queued SMS notification intents, and operator incident API endpoints. Africa's Talking provider authentication and delivery behavior remain explicitly provider-confirmation items; this milestone does not invent those details.
+
+The dashboard is available on the configured web port with separate Overview, Incidents, Incident History, and Tours & guests pages. It uses a calm navy/teal safety theme, operator sign-in, clear status states, and focused action flows.
