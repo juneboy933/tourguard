@@ -4,13 +4,16 @@ TourGuard is an SMS-based tourist separation reporting and coordination platform
 
 ## Project status
 
-- M0 infrastructure setup: partially complete.
+- Sandbox MVP: complete and verified.
+- M0 provider discovery: partially complete; production provider details remain open.
 - M1 application foundation: complete and verified.
 - M2 identity and authorization: complete and verified.
 - M3 tours and guests: complete and verified.
 - M4 SMS adapter and inbound inbox: sandbox foundation complete and verified.
 - M5 incident workflow and dashboard are implemented and verified through the sandbox.
+- M6 sandbox hardening and release checks are complete; GitHub Actions is green and the final demo smoke test passed.
 - Africa's Talking provider discovery remains open for sender configuration, webhook authentication/payloads, retry behavior, and delivery semantics.
+- Next release focus: deploy the API, dashboard, and managed PostgreSQL database on Render with TLS, secrets, health checks, and rollback documentation.
 
 ## Technology baseline
 

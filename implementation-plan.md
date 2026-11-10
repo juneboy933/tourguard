@@ -1,6 +1,6 @@
 # TourGuard implementation plan
 
-**Status:** M6 hardening in progress
+**Status:** Sandbox MVP complete; Render deployment and production hardening next
 **Inputs:** Approved `PRD.md` v0.1.0 and `TRD.md` v0.1.0  
 **Scope:** Hackathon MVP; no application code is included in this document.
 
@@ -14,7 +14,7 @@
 | M3 — Tours and guests | Complete | Tour, guest, and membership models/migration, references, phone normalization, guide assignment, tenant-scoped APIs, lifecycle guards, and passing tests are implemented. |
 | M4 — SMS adapter and inbound inbox | Complete for sandbox | Sandbox adapter, public webhook, canonical mapping, inbox persistence, strict parser, provider-ID idempotency, and tests are implemented and manually exercised through ngrok. Production webhook verification and delivery callback semantics remain open. |
 | M5 — Incidents and operator workflow | Complete | Incident state machine, sender/guest/tour authorization, queued notification intents, audit events, operator endpoints, dashboard incident workflow, rejection handling, and duplicate callback protection are implemented and verified through the sandbox. |
-| M6 — Hardening and release | In progress | CI verification, database readiness checks, non-root container definitions, and the initial multi-page safety-focused dashboard are implemented. Retention, structured observability, isolated PostgreSQL integration tests, deployment/runbooks, and provider release decisions remain. |
+| M6 — Hardening and release | Complete for sandbox MVP | GitHub Actions is green; liveness/readiness checks, non-root container definitions, dependency/security checks, migrations, the multi-page safety dashboard, sandbox SMS verification, and the final demo smoke test are complete. Render deployment, production provider confirmation, retention, structured observability, isolated PostgreSQL integration tests, and operational runbooks remain for the production release. |
 
 ### Completed commits
 
@@ -22,7 +22,7 @@
 - `10a609c` — local PostgreSQL development setup
 - `4d16920` — application foundation scaffold
 
-The M1 commit is ready to push. Do not commit `.env` or any real provider/database credentials.
+The current MVP implementation is pushed to GitHub through commit `99f2867`. Do not commit `.env` or any real provider/database credentials.
 
 ## 1. Delivery principles
 
@@ -113,7 +113,7 @@ The M1 commit is ready to push. Do not commit `.env` or any real provider/databa
 4. Perform a provider sandbox/manual SMS test and document observed callback/delivery behavior.
 5. Deploy to the selected environment with TLS, secret injection, health checks, and rollback procedure.
 
-**Current implementation note:** The repository now has GitHub Actions verification, a database-aware readiness endpoint, process liveness endpoint, and separate non-root API/web container definitions. Docker image execution and the CI workflow still need to be exercised in GitHub/Render, and privacy retention, structured observability, integration testing, and operational runbooks remain.
+**Current implementation note:** The sandbox MVP has passed the final demo smoke test and the GitHub Actions workflow is green. The repository has a database-aware readiness endpoint, process liveness endpoint, separate non-root API/web container definitions, migrations, and dependency/security checks. Render deployment and production release hardening remain intentionally separate from the completed sandbox milestone.
 
 **Exit criteria:** PRD acceptance criteria are demonstrated, deployment is repeatable, monitoring is usable, and unresolved provider behavior is documented rather than overstated.
 
@@ -134,7 +134,7 @@ The M1 commit is ready to push. Do not commit `.env` or any real provider/databa
 
 `M0 -> M1 -> M2 -> M3 -> M4 -> M5 -> M6`
 
-M4 cannot be completed against a real provider until the Africa's Talking discovery items are confirmed. M5 depends on M3 and M4 because incident creation requires active tour membership and a normalized inbound message. M6 is blocked from production release until hosting/TLS and provider behavior are documented.
+M4 cannot be completed against a real provider until the Africa's Talking discovery items are confirmed. M5 depends on M3 and M4 because incident creation requires active tour membership and a normalized inbound message. M6 sandbox completion does not imply production readiness; Render hosting/TLS, secret injection, provider behavior, retention, and rollback procedures must be completed before production release.
 
 ## 5. Definition of done for the MVP
 
