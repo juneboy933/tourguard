@@ -13,7 +13,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "db:generate": "npm run db:generate --workspace=@tourguard/database",
-    "db:validate": "npm run db:validate --workspace=@tourguard/database"
+    "db:validate": "npm run db:validate --workspace=@tourguard/database",
+    "db:seed": "npm run db:seed --workspace=@tourguard/database"
   },
   "devDependencies": {
     "dotenv-cli": "^8.0.0"
